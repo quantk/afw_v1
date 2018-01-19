@@ -131,6 +131,8 @@ class Router
             }
         }
 
+        //todo: сделать несколько классов:
+        //todo: FoundedRoute, NotFoundedRoute и т.п... Подумать над этим..
         $this->currentRoute = new DispatchedRoute(
             DispatchedRoute::ROUTE_NOT_FOUNDED,
             null
