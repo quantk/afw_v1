@@ -52,7 +52,10 @@ class Container implements ContainerInterface
             throw new ConflictServiceError();
         }
 
-        $this->services[$id] = null;
+        $this->services[$id] = [
+            'instance' => null,
+            'public' => true
+        ];
 
         return $this;
     }
@@ -66,7 +69,7 @@ class Container implements ContainerInterface
     {
         $id = $this->getServiceId($instance);
         $this->add($id);
-        $this->services[$id] = $instance;
+        $this->setInstanceById($id, $instance);
 
         return $this;
     }
@@ -107,11 +110,11 @@ class Container implements ContainerInterface
     private function initialize($id)
     {
         // If not initialized
-        if ($this->services[$id] === null) {
-            $this->services[$id] = $this->resolveDependency($id);
+        if ($this->getInstanceById($id) === null) {
+            $this->setInstanceById($id, $this->resolveDependency($id));
         }
 
-        return $this->services[$id];
+        return $this->getInstanceById($id);
     }
 
     /**
@@ -131,7 +134,27 @@ class Container implements ContainerInterface
      */
     private function isInitialized($id): bool
     {
-        return isset($this->services[$id]);
+        $instance = $this->getInstanceById($id);
+        return isset($instance);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return mixed
+     */
+    private function getInstanceById($id)
+    {
+        return $this->services[$id]['instance'];
+    }
+
+    /**
+     * @param $id
+     * @param $instance
+     */
+    private function setInstanceById($id, $instance)
+    {
+        $this->services[$id]['instance'] = $instance;
     }
 
     /**
@@ -144,9 +167,9 @@ class Container implements ContainerInterface
     {
         $instance            = $class->newInstanceArgs($args);
         $id                  = $this->getServiceId($instance);
-        $this->services[$id] = $instance;
+        $this->setInstanceById($id, $instance);
 
-        return $this->services[$id];
+        return $this->getInstanceById($id);
     }
 
     /**
@@ -157,7 +180,7 @@ class Container implements ContainerInterface
     private function resolveDependency($service)
     {
         if ($this->isInitialized($service)) {
-            return $this->services[$service];
+            return $this->getInstanceById($service);
         } else {
             $rService = new \ReflectionClass($service);
 
@@ -173,7 +196,7 @@ class Container implements ContainerInterface
                 $dependencyClass = $parameter->getClass()->getName();
 
                 if ($this->isServiceExist($dependencyClass) && $this->isInitialized($dependencyClass)) {
-                    $args[] = $this->services[$dependencyClass];
+                    $args[] = $this->getInstanceById($dependencyClass);
                 } else {
                     $args[] = $this->resolveDependency($dependencyClass);
                 }
@@ -201,9 +224,9 @@ class Container implements ContainerInterface
             throw new ServiceNotFoundError();
         }
 
-        $this->services[$id] = $this->initialize($id);
+        $this->setInstanceById($id, $this->initialize($id));
 
-        return $this->services[$id];
+        return $this->getInstanceById($id);
     }
 //endregion Getters/Setters
 }
