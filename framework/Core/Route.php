@@ -3,7 +3,6 @@
  * Created by PhpStorm.
  * User: quantick
  * Date: 18.01.18
- * Time: 22:34
  */
 
 namespace Artifly\Core;

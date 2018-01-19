@@ -3,7 +3,6 @@
  * Created by PhpStorm.
  * User: quantick
  * Date: 18.01.18
- * Time: 22:33
  */
 
 namespace Artifly\Core;
@@ -36,9 +35,31 @@ class Router
      * @var Route[]
      */
     private $namedRoutes = [];
+
+    /**
+     * @var DispatchedRoute
+     */
+    private $currentRoute = null;
 //endregion Fields
 
+//region SECTION: Constructor
+    /**
+     * Router constructor.
+     */
+    public function __construct()
+    {
+        //todo: temp route for 404 page
+        $this->addRoute(
+            "/404",
+            function () {
+                return "<h1>Page not found :(</h1>";
+            }
+        );
+    }
+//endregion Constructor
+
 //region SECTION: Public
+
     /**
      * @param        $routePath
      * @param        $handler
@@ -48,7 +69,7 @@ class Router
      * @return $this
      * @throws RouterConflictError
      */
-    public function addRoute($routePath, $handler, $method = Route::GET_METHOD, $routeName = '')
+    public function addRoute($routePath, $handler, $method = Route::GET_METHOD, $routeName = ''): Router
     {
         if (!$handler instanceof \Closure) {
             if (!strstr($handler, '@')) {
@@ -73,13 +94,12 @@ class Router
     /**
      * @param Request $request
      *
-     * @return mixed
+     * @return DispatchedRoute
      * @throws ControllerResponseError
      */
-    public function dispatch(Request $request)
+    public function dispatch(Request $request): DispatchedRoute
     {
         $pathInfo = $request->getPathInfo();
-
 
         foreach ($this->routes as $route) {
             $pattern = $this->generateRegexRoute($route);
@@ -88,25 +108,30 @@ class Router
                 $dispatchedRoute = $route;
                 $args[0]         = $request;
                 $args            = array_merge($args, array_slice($matches, 1));
-                if ($dispatchedRoute->getHandler() instanceof \Closure) {
-                    $content = call_user_func_array($dispatchedRoute->getHandler(), $args);
-                } else {
-                    list($controllerClassName, $action) = $this->parseHandlerString($dispatchedRoute);
-                    $controllerClassName = sprintf("%s%s",$this->controllerPath,$controllerClassName);
-                    $controller          = new $controllerClassName();
-                    $content             = call_user_func_array([$controller, $action], $args);
-                }
+                $handler         = $this->getHandler($dispatchedRoute);
 
-                if (!$content) {
-                    throw new ControllerResponseError('Controller must return response');
+                if (!$handler) {
+                    throw new RouterError('Something went wrong...');
                 } else {
-                    return $content;
+                    $this->currentRoute = new DispatchedRoute(
+                        DispatchedRoute::ROUTE_FOUNDED,
+                        $handler,
+                        $route,
+                        $args
+                    );
+
+                    return $this->currentRoute;
                 }
                 break;
             }
         }
 
-        return null;
+        $this->currentRoute = new DispatchedRoute(
+            DispatchedRoute::ROUTE_NOT_FOUNDED,
+            null
+        );
+
+        return $this->currentRoute;
     }
 //endregion Public
 //region SECTION: Private
@@ -146,5 +171,34 @@ class Router
 
         return $pattern;
     }
+
+    /**
+     * @param Route $dispatchedRoute
+     *
+     * @return mixed
+     */
+    private function getHandler($dispatchedRoute)
+    {
+        if ($dispatchedRoute->getHandler() instanceof \Closure) {
+            return $dispatchedRoute->getHandler();
+        } else {
+            list($controllerClassName, $action) = $this->parseHandlerString($dispatchedRoute);
+            $controllerClassName = sprintf("%s%s", $this->controllerPath, $controllerClassName);
+            $controller          = new $controllerClassName();
+            $handler             = \Closure::fromCallable([$controller, $action]);
+
+            return $handler;
+        }
+    }
 //endregion Private
+
+//region SECTION: Getters/Setters
+    /**
+     * @return DispatchedRoute
+     */
+    public function getCurrentRoute(): DispatchedRoute
+    {
+        return $this->currentRoute;
+    }
+//endregion Getters/Setters
 }
