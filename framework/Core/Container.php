@@ -147,7 +147,7 @@ class Container implements ContainerInterface
                 $dependencyClass = $parameter->getClass()->getName();
 
                 $args = [];
-                if ($this->isServiceExist($dependencyClass)) {
+                if ($this->isServiceExist($dependencyClass) && $this->isInitialized($dependencyClass)) {
                     $args[] = $this->services[$dependencyClass];
                 } else {
                     $args[] = $this->resolveDependency($dependencyClass);
