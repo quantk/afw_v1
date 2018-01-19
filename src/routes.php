@@ -4,10 +4,9 @@ $router = new \Artifly\Core\Router();
 $router
     ->addRoute(
         '/hello/{name}/{lastname}',
-        function(\Symfony\Component\HttpFoundation\Request $request, $name, $lastname) {
-            $name = ucfirst($name);
-            $lastname = ucfirst($lastname);
-            return "<h1>Hello, $name $lastname. You are in closure action.</h1>";
+        function(\Artifly\Core\Container $container, \Artifly\Core\TemplateEngine $templateEngine, $name, $lastname) {
+
+            return $templateEngine->render('index_closure.html', ['user' => sprintf('%s %s', $name, $lastname)]);
         }
     )->addRoute(
         '/hello/{name}',

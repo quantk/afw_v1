@@ -22,11 +22,6 @@ class Router
 {
 //region SECTION: Fields
     /**
-     * @var string
-     */
-    private $controllerPath = 'App\\Controller\\';
-
-    /**
      * @var Route[]
      */
     private $routes = [];
@@ -106,9 +101,10 @@ class Router
 
             if (preg_match($pattern, $pathInfo, $matches)) {
                 $dispatchedRoute = $route;
-                $args[0]         = $request;
-                $args            = array_merge($args, array_slice($matches, 1));
-                $handler         = $this->getHandler($dispatchedRoute);
+                $args            = array_slice($matches, 1);
+                //todo: перенести ActionHandler в другое место. А отсюда возвращать handler в виде строки/closure
+                $handlerType = $route->getHandler() instanceof \Closure ? ActionHandler::CLOSURE_TYPE : ActionHandler::CONTROLLER_TYPE;
+                $handler     = new ActionHandler($this->getHandler($dispatchedRoute), $handlerType);
 
                 if (!$handler) {
                     throw new RouterError('Something went wrong...');
@@ -135,20 +131,6 @@ class Router
     }
 //endregion Public
 //region SECTION: Private
-    /**
-     * @param Route $dispatchedRoute
-     *
-     * @return array
-     */
-    private function parseHandlerString(Route $dispatchedRoute): array
-    {
-        $controllerHandlerParts = explode('@', $dispatchedRoute->getHandler());
-        $controllerClassName    = $controllerHandlerParts[0];
-        $action                 = $controllerHandlerParts[1];
-
-        return array($controllerClassName, $action);
-    }
-
     /**
      * @param $route
      *
@@ -179,16 +161,7 @@ class Router
      */
     private function getHandler($dispatchedRoute)
     {
-        if ($dispatchedRoute->getHandler() instanceof \Closure) {
-            return $dispatchedRoute->getHandler();
-        } else {
-            list($controllerClassName, $action) = $this->parseHandlerString($dispatchedRoute);
-            $controllerClassName = sprintf("%s%s", $this->controllerPath, $controllerClassName);
-            $controller          = new $controllerClassName();
-            $handler             = \Closure::fromCallable([$controller, $action]);
-
-            return $handler;
-        }
+        return $dispatchedRoute->getHandler();
     }
 //endregion Private
 

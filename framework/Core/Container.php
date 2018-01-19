@@ -28,7 +28,18 @@ class Container implements ContainerInterface
     private $services = [];
 //endregion Fields
 
+//region SECTION: Constructor
+    /**
+     * Container constructor.
+     */
+    public function __construct()
+    {
+        $this->addInstance($this);
+    }
+//endregion Constructor
+
 //region SECTION: Public
+
     /**
      * @param $id
      *
@@ -124,6 +135,21 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param \ReflectionClass $class
+     * @param array            $args
+     *
+     * @return mixed
+     */
+    private function createFromReflection(\ReflectionClass $class, $args = [])
+    {
+        $instance            = $class->newInstanceArgs($args);
+        $id                  = $this->getServiceId($instance);
+        $this->services[$id] = $instance;
+
+        return $this->services[$id];
+    }
+
+    /**
      * @param $service
      *
      * @return mixed|object
@@ -138,7 +164,7 @@ class Container implements ContainerInterface
             $constructor = $rService->getConstructor();
 
             if ($constructor === null) {
-                return $rService->newInstance();
+                return $this->createFromReflection($rService);
             }
 
             $parameters = $constructor->getParameters();
@@ -146,7 +172,6 @@ class Container implements ContainerInterface
             foreach ($parameters as $parameter) {
                 $dependencyClass = $parameter->getClass()->getName();
 
-                $args = [];
                 if ($this->isServiceExist($dependencyClass) && $this->isInitialized($dependencyClass)) {
                     $args[] = $this->services[$dependencyClass];
                 } else {
@@ -154,7 +179,7 @@ class Container implements ContainerInterface
                 }
             }
 
-            return $rService->newInstanceArgs($args);
+            return $this->createFromReflection($rService, $args);
         }
     }
 //endregion Private

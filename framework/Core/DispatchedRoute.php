@@ -24,7 +24,7 @@ class DispatchedRoute
     private $dispatchType = self::ROUTE_FOUNDED;
 
     /**
-     * @var \Closure
+     * @var ActionHandler
      */
     private $handler;
 
@@ -43,12 +43,12 @@ class DispatchedRoute
     /**
      * DispatchedRoute constructor.
      *
-     * @param string   $dispatchType
-     * @param \Closure $handler
-     * @param Route    $route
-     * @param array    $args
+     * @param string        $dispatchType
+     * @param ActionHandler $handler
+     * @param Route         $route
+     * @param array         $args
      */
-    public function __construct(string $dispatchType, ?\Closure $handler, Route $route = null, array $args = [])
+    public function __construct(string $dispatchType, ActionHandler $handler, Route $route = null, array $args = [])
     {
         $this->dispatchType = $dispatchType;
         $this->handler      = $handler;
@@ -67,7 +67,7 @@ class DispatchedRoute
     }
 
     /**
-     * @return \Closure
+     * @return ActionHandler
      */
     public function getHandler()
     {

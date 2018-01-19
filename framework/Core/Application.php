@@ -9,6 +9,8 @@ namespace Artifly\Core;
 
 
 use Symfony\Component\HttpFoundation\Request;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
 
 /**
  * Class Application
@@ -26,6 +28,18 @@ class Application
      * @var Container
      */
     private $container;
+    /**
+     * @var string
+     */
+    private $frameworkPath = '';
+    /**
+     * @var string
+     */
+    private $corePath = '';
+    /**
+     * @var string
+     */
+    private $templatesPath = '';
 //endregion Fields
 
 //region SECTION: Constructor
@@ -34,9 +48,19 @@ class Application
      */
     public function __construct()
     {
+        $this->corePath = dirname(__FILE__);
+        $this->frameworkPath = $this->corePath.'/../';
+        $this->templatesPath = $this->frameworkPath.'../templates';
+
         $this->request   = Request::createFromGlobals();
         $this->container = new Container();
         $this->container->addInstance($this->request);
+        $loader = new Twig_Loader_Filesystem($this->templatesPath);
+        $twig = new Twig_Environment($loader, [
+//            'cache' => '/path/to/compilation_cache',
+        ]);
+        $templateEngine = new TemplateEngine($twig);
+        $this->container->addInstance($templateEngine);
     }
 //endregion Constructor
 
@@ -52,7 +76,9 @@ class Application
         $dispatchedRoute = $router->dispatch($this->request);
         switch ($dispatchedRoute->getDispatchType()) {
             case DispatchedRoute::ROUTE_FOUNDED:
-                $content = call_user_func_array($dispatchedRoute->getHandler(), $dispatchedRoute->getArgs());
+                $handler = $dispatchedRoute->getHandler();
+                $handler->setContainer($this->container);
+                $content = $handler->execute($dispatchedRoute->getArgs());
                 $this->printContent($content);
                 break;
             default:
