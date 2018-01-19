@@ -179,7 +179,7 @@ class Router
      *
      * @return Router
      */
-    public function setMethod($method = Route::GET_METHOD): Router
+    public function addMethod($method = Route::GET_METHOD): Router
     {
         $this->headRoute->addMethod($method);
 
