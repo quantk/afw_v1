@@ -5,11 +5,11 @@
  * Date: 18.01.18
  */
 
-namespace Artifly\Core;
+namespace Artifly\Core\Component\Router;
 
+use Artifly\Core\Component\Router\Exception\RouterConflictError;
+use Artifly\Core\Component\Router\Exception\RouterError;
 use Artifly\Core\Exception\ControllerResponseError;
-use Artifly\Core\Exception\RouterConflictError;
-use Artifly\Core\Exception\RouterError;
 use Symfony\Component\HttpFoundation\Request;
 
 

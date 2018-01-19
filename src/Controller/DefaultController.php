@@ -8,10 +8,9 @@
 namespace App\Controller;
 
 
-use Artifly\Core\Container;
-use Artifly\Core\Controller;
-use Artifly\Core\TemplateEngine;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Artifly\Core\Component\Container\Container;
+use Artifly\Core\Component\Template\TemplateEngine;
+use Artifly\Core\Http\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

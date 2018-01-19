@@ -5,9 +5,10 @@
  * Date: 19.01.18
  */
 
-namespace Artifly\Core\Exception;
+namespace Artifly\Core\Component\Container\Exception;
 
 
+use Artifly\Core\Exception\Error;
 use Psr\Container\NotFoundExceptionInterface;
 
 class ServiceNotFoundError extends Error implements NotFoundExceptionInterface

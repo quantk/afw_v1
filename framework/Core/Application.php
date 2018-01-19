@@ -8,6 +8,11 @@
 namespace Artifly\Core;
 
 
+use Artifly\Core\Component\Container\Container;
+use Artifly\Core\Component\Router\DispatchedRoute;
+use Artifly\Core\Component\Router\Router;
+use Artifly\Core\Component\Template\TemplateEngine;
+use Artifly\Core\Http\ActionHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

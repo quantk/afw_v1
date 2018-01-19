@@ -5,10 +5,12 @@
  * Date: 19.01.18
  */
 
-namespace Artifly\Core;
+namespace Artifly\Core\Http;
 
 
-use Artifly\Core\Exception\ContainerNotInjectedError;
+use Artifly\Core\Component\Container\Container;
+use Artifly\Core\Component\Container\Exception\ConflictServiceError;
+use Artifly\Core\Component\Container\Exception\ContainerNotInjectedError;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -105,7 +107,7 @@ class ActionHandler
      * @param \ReflectionMethod|\ReflectionFunction $rHandler
      *
      * @return array
-     * @throws Exception\ConflictServiceError
+     * @throws ConflictServiceError
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */

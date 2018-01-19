@@ -5,7 +5,9 @@
  * Date: 18.01.18
  */
 
-namespace Artifly\Core;
+namespace Artifly\Core\Http;
+
+use Artifly\Core\Component\Template\TemplateEngine;
 
 
 /**

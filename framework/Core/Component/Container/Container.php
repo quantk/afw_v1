@@ -5,11 +5,11 @@
  * Date: 19.01.18
  */
 
-namespace Artifly\Core;
+namespace Artifly\Core\Component\Container;
 
 
-use Artifly\Core\Exception\ConflictServiceError;
-use Artifly\Core\Exception\ServiceNotFoundError;
+use Artifly\Core\Component\Container\Exception\ConflictServiceError;
+use Artifly\Core\Component\Container\Exception\ServiceNotFoundError;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;

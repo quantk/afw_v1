@@ -1,8 +1,9 @@
 <?php
 
-use Artifly\Core\Route;
-use Artifly\Core\Router;
-use Artifly\Core\TemplateEngine;
+
+use Artifly\Core\Component\Router\Route;
+use Artifly\Core\Component\Router\Router;
+use Artifly\Core\Component\Template\TemplateEngine;
 
 $router = new Router();
 $router

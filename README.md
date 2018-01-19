@@ -22,7 +22,7 @@ $router
 1. ~~Router~~
 2. ~~Container with Dependency Injection~~
 3. ~~Template Engine~~
-4. Refactor file structure in core directory
+4. ~~Refactor file structure in core directory~~
 5. ORM
 6. Redirect mechanism
 7. Configuration Manager

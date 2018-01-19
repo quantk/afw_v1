@@ -5,7 +5,7 @@
  * Date: 18.01.18
  */
 
-namespace Artifly\Core\Exception;
+namespace Artifly\Core\Component\Router\Exception;
 
 
 class RouterConflictError extends RouterError

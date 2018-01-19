@@ -5,7 +5,7 @@
  * Date: 19.01.18
  */
 
-namespace Artifly\Core;
+namespace Artifly\Core\Component\Template;
 
 
 interface TemplateEngineInterface
