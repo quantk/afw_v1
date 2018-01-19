@@ -8,12 +8,18 @@
 namespace Artifly\Core;
 
 
+/**
+ * Class Route
+ *
+ * @package Artifly\Core
+ */
 class Route
 {
 //region SECTION: Fields
     public const GET_METHOD = 'GET';
-
     public const POST_METHOD = 'POST';
+    public const PUT_METHOD = 'PUT';
+    public const DELETE_METHOD = 'DELETE';
 
     /**
      * @var string
@@ -91,7 +97,7 @@ class Route
      *
      * @return Route
      */
-    public function setRouteName($routeName)
+    public function setRouteName($routeName): Route
     {
         $this->routeName = $routeName;
 
@@ -103,7 +109,7 @@ class Route
      *
      * @return Route
      */
-    public function setMethod($method)
+    public function setMethod($method): Route
     {
         $this->method = $method;
 

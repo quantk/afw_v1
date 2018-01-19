@@ -43,15 +43,13 @@ class DefaultController extends Controller
 
     /**
      * @param Request $request
-     * @param         $name
      *
      * @return string
      */
-    public function indexAction(Request $request, $name)
+    public function indexAction(Request $request)
     {
-        $name = ucfirst($name);
         return $this->getTemplateEngine()->render('index.html', [
-            'user' => $name
+            'user' => 'Юзер'
         ]);
     }
 }
