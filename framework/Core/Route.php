@@ -21,6 +21,13 @@ class Route
     public const PUT_METHOD = 'PUT';
     public const DELETE_METHOD = 'DELETE';
 
+    public const AVAILABLE_METHODS = [
+        self::GET_METHOD,
+        self::POST_METHOD,
+        self::PUT_METHOD,
+        self::DELETE_METHOD
+    ];
+
     /**
      * @var string
      */
@@ -31,9 +38,9 @@ class Route
      */
     private $routePath = '';
     /**
-     * @var string
+     * @var array
      */
-    private $method;
+    private $methods = [self::GET_METHOD];
 
     /**
      * @var string|\Closure
@@ -47,14 +54,14 @@ class Route
      *
      * @param string $routePath
      * @param        $handler
-     * @param string $method
+     * @param array  $methods
      * @param string $routeName
      */
-    public function __construct($routePath, $handler, $method = self::GET_METHOD, $routeName = '')
+    public function __construct($routePath, $handler, $methods = [self::GET_METHOD], $routeName = '')
     {
         $this->routeName = $routeName;
         $this->routePath = $routePath;
-        $this->method    = $method;
+        $this->methods    = $methods;
         $this->handler   = $handler;
     }
 //endregion Constructor
@@ -77,11 +84,11 @@ class Route
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getMethod(): string
+    public function getMethods(): array
     {
-        return $this->method;
+        return $this->methods;
     }
 
     /**
@@ -109,9 +116,11 @@ class Route
      *
      * @return Route
      */
-    public function setMethod($method): Route
+    public function addMethod($method): Route
     {
-        $this->method = $method;
+        if (!in_array($method, $this->methods) && in_array($method, self::AVAILABLE_METHODS)) {
+            $this->methods[] = $method;
+        }
 
         return $this;
     }

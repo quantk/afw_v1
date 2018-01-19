@@ -49,7 +49,8 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         return $this->getTemplateEngine()->render('index.html', [
-            'user' => 'Юзер'
+            'user' => 'Юзер',
+            'method' => $request->getMethod()
         ]);
     }
 }

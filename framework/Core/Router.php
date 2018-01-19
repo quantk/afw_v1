@@ -63,20 +63,21 @@ class Router
     /**
      * @param        $routePath
      * @param        $handler
-     * @param string $method
+     * @param array  $methods
      * @param string $routeName
      *
      * @return $this
      * @throws RouterConflictError
+     * @throws RouterError
      */
-    public function addRoute($routePath, $handler, $method = Route::GET_METHOD, $routeName = ''): Router
+    public function addRoute($routePath, $handler, $methods = [Route::GET_METHOD], $routeName = ''): Router
     {
         if (!$handler instanceof \Closure) {
             if (!strstr($handler, '@')) {
                 throw new RouterError('Wrong format of route handler');
             }
         }
-        $route = new Route($routePath, $handler, $method, $routeName);
+        $route = new Route($routePath, $handler, $methods, $routeName);
         if ($routeName) {
             if (isset($this->namedRoutes[$routeName])) {
                 throw new RouterConflictError('Route name already in use');
@@ -103,7 +104,7 @@ class Router
         $pathInfo = $request->getPathInfo();
 
         foreach ($this->routes as $route) {
-            if ($route->getMethod() !== $request->getMethod()) {
+            if (!in_array($request->getMethod(), $route->getMethods())) {
                 continue;
             }
 
@@ -180,7 +181,7 @@ class Router
      */
     public function setMethod($method = Route::GET_METHOD): Router
     {
-        $this->headRoute->setMethod($method);
+        $this->headRoute->addMethod($method);
 
         return $this;
     }
