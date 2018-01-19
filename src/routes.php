@@ -8,7 +8,8 @@ $router
 
             return $templateEngine->render('index_closure.html', ['user' => sprintf('%s %s', $name, $lastname)]);
         }
-    )->addRoute(
+    )
+    ->addRoute(
         '/hello/{name}',
         'DefaultController@indexAction'
     )

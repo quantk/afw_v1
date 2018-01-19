@@ -8,7 +8,9 @@
 namespace Artifly\Core;
 
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
@@ -40,6 +42,10 @@ class Application
      * @var string
      */
     private $templatesPath = '';
+    /**
+     * @var TemplateEngine
+     */
+    private $templateEngine = null;
 //endregion Fields
 
 //region SECTION: Constructor
@@ -48,19 +54,21 @@ class Application
      */
     public function __construct()
     {
-        $this->corePath = dirname(__FILE__);
+        $this->corePath      = dirname(__FILE__);
         $this->frameworkPath = $this->corePath.'/../';
         $this->templatesPath = $this->frameworkPath.'../templates';
 
         $this->request   = Request::createFromGlobals();
         $this->container = new Container();
         $this->container->addInstance($this->request);
-        $loader = new Twig_Loader_Filesystem($this->templatesPath);
-        $twig = new Twig_Environment($loader, [
+        $loader         = new Twig_Loader_Filesystem($this->templatesPath);
+        $twig           = new Twig_Environment(
+            $loader, [
 //            'cache' => '/path/to/compilation_cache',
-        ]);
-        $templateEngine = new TemplateEngine($twig);
-        $this->container->addInstance($templateEngine);
+            ]
+        );
+        $this->templateEngine = new TemplateEngine($twig);
+        $this->container->addInstance($this->templateEngine);
     }
 //endregion Constructor
 
@@ -76,39 +84,47 @@ class Application
         $dispatchedRoute = $router->dispatch($this->request);
         switch ($dispatchedRoute->getDispatchType()) {
             case DispatchedRoute::ROUTE_FOUNDED:
-                $handler = $dispatchedRoute->getHandler();
+                $handlerType = $dispatchedRoute->getHandler() instanceof \Closure ? ActionHandler::CLOSURE_TYPE : ActionHandler::CONTROLLER_TYPE;
+                $handler     = new ActionHandler($dispatchedRoute->getHandler(), $handlerType);
                 $handler->setContainer($this->container);
                 $content = $handler->execute($dispatchedRoute->getArgs());
                 $this->printContent($content);
                 break;
             default:
-                $this->redirectTo404();
+                $this->print404();
         }
-    }
-
-    /**
-     * @param string $url
-     * @param int    $code
-     */
-    private function redirect(string $url, $code = 302)
-    {
-        header(sprintf('Location: %s', $url), true, $code);
-    }
-
-
-    private function redirectTo404(): void
-    {
-        $this->redirect('/404');
     }
 //endregion Public
 
 //region SECTION: Private
     /**
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
+     */
+    private function print404(): void
+    {
+        $response = new Response($this->templateEngine->render('404.html'), 404);
+        $response->send();
+    }
+
+    /**
+     * @param     $url
+     * @param int $code
+     */
+    private function redirect($url, $code = 302): void
+    {
+        $response = new RedirectResponse($url, $code);
+        $response->send();
+    }
+
+    /**
      * @param $content
      */
     private function printContent($content)
     {
-        echo $content;
+        $response = $content instanceof Response ? $content : new Response($content,200);
+        $response->send();
     }
 //endregion Private
 

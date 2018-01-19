@@ -35,6 +35,11 @@ class Router
      * @var DispatchedRoute
      */
     private $currentRoute = null;
+
+    /**
+     * @var Route
+     */
+    private $headRoute = null;
 //endregion Fields
 
 //region SECTION: Constructor
@@ -82,6 +87,7 @@ class Router
             throw new RouterConflictError('Route path already in use');
         }
         $this->routes[$routePath] = $route;
+        $this->headRoute          = $route;
 
         return $this;
     }
@@ -97,14 +103,16 @@ class Router
         $pathInfo = $request->getPathInfo();
 
         foreach ($this->routes as $route) {
+            if ($route->getMethod() !== $request->getMethod()) {
+                continue;
+            }
+
             $pattern = $this->generateRegexRoute($route);
 
             if (preg_match($pattern, $pathInfo, $matches)) {
                 $dispatchedRoute = $route;
                 $args            = array_slice($matches, 1);
-                //todo: перенести ActionHandler в другое место. А отсюда возвращать handler в виде строки/closure
-                $handlerType = $route->getHandler() instanceof \Closure ? ActionHandler::CLOSURE_TYPE : ActionHandler::CONTROLLER_TYPE;
-                $handler     = new ActionHandler($this->getHandler($dispatchedRoute), $handlerType);
+                $handler         = $dispatchedRoute->getHandler();
 
                 if (!$handler) {
                     throw new RouterError('Something went wrong...');
@@ -130,6 +138,7 @@ class Router
         return $this->currentRoute;
     }
 //endregion Public
+
 //region SECTION: Private
     /**
      * @param $route
@@ -153,16 +162,6 @@ class Router
 
         return $pattern;
     }
-
-    /**
-     * @param Route $dispatchedRoute
-     *
-     * @return mixed
-     */
-    private function getHandler($dispatchedRoute)
-    {
-        return $dispatchedRoute->getHandler();
-    }
 //endregion Private
 
 //region SECTION: Getters/Setters
@@ -172,6 +171,30 @@ class Router
     public function getCurrentRoute(): DispatchedRoute
     {
         return $this->currentRoute;
+    }
+
+    /**
+     * @param string $method
+     *
+     * @return Router
+     */
+    public function setMethod($method = Route::GET_METHOD): Router
+    {
+        $this->headRoute->setMethod($method);
+
+        return $this;
+    }
+
+    /**
+     * @param string $routeName
+     *
+     * @return Router
+     */
+    public function setRouteName(string $routeName): Router
+    {
+        $this->headRoute->setRouteName($routeName);
+
+        return $this;
     }
 //endregion Getters/Setters
 }

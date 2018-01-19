@@ -49,7 +49,7 @@ class Route
         $this->routeName = $routeName;
         $this->routePath = $routePath;
         $this->method    = $method;
-        $this->handler = $handler;
+        $this->handler   = $handler;
     }
 //endregion Constructor
 
@@ -86,6 +86,29 @@ class Route
         return $this->handler;
     }
 
+    /**
+     * @param string $routeName
+     *
+     * @return Route
+     */
+    public function setRouteName($routeName)
+    {
+        $this->routeName = $routeName;
+
+        return $this;
+    }
+
+    /**
+     * @param string $method
+     *
+     * @return Route
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
+
+        return $this;
+    }
 //endregion Getters/Setters
 
 }

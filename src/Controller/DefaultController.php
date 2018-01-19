@@ -11,6 +11,7 @@ namespace App\Controller;
 use Artifly\Core\Container;
 use Artifly\Core\Controller;
 use Artifly\Core\TemplateEngine;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
