@@ -200,13 +200,7 @@ class EntityManager
      */
     private function parseQueryResult($objectClass, $stmt)
     {
-        if ($objectClass) {
-            $result = $stmt->fetchAll(\PDO::FETCH_CLASS, $objectClass);
-        } else {
-            $result = $stmt->fetchAll();
-        }
-
-        return $result;
+        return $objectClass ? $stmt->fetchAll(\PDO::FETCH_CLASS, $objectClass) : $stmt->fetchAll();
     }
 //endregion Private
 }
