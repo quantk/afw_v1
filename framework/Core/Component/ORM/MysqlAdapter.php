@@ -19,18 +19,20 @@ class MysqlAdapter extends AbstractAdapter
     /**
      * MysqlAdapter constructor.
      *
-     * @param $hostname
-     * @param $dbname
-     * @param $user
-     * @param $pass
+     * @param string $hostname
+     * @param        $dbname
+     * @param string $user
+     * @param string $pass
+     * @param string $charset
      */
-    public function __construct($hostname = 'localhost', $dbname, $user = 'root', $pass = '')
+    public function __construct($hostname = 'localhost', $dbname, $user = 'root', $pass = '', $charset = self::DEFAULT_CHARSET)
     {
         $this->hostname   = $hostname;
-        $this->dbname     = $dbname;
+        $this->DBName     = $dbname;
         $this->user       = $user;
         $this->pass       = $pass;
-        $this->connString = sprintf('mysql:host=%s;dbname=%s;charset=UTF8', $this->hostname, $this->dbname);
+        $this->charset    = $charset;
+        $this->connString = sprintf('mysql:host=%s;dbname=%s;charset=%s', $this->hostname, $this->DBName, $charset);
     }
 //endregion Constructor
 }

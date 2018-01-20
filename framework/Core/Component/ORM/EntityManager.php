@@ -61,7 +61,7 @@ class EntityManager
         $pdo  = $this->connection->getPdo();
         $stmt = $pdo->prepare(
             sprintf(
-                "SELECT * FROM `%s` WHERE id=:id",
+                "SELECT * FROM `%s` WHERE id=:id;",
                 $tableName,
                 $id
             )
@@ -138,7 +138,7 @@ class EntityManager
         $properties = implode(',', $propertyNames);
         $pdo->beginTransaction();
         $stmt = $pdo->prepare(
-            sprintf("INSERT INTO `%s` (%s) VALUES (%s)", $tableName, $properties, rtrim($paramsString, ', '))
+            sprintf("INSERT INTO `%s` (%s) VALUES (%s);", $tableName, $properties, rtrim($paramsString, ', '))
         );
 
         $this->bindParams($propertyValues, $stmt);
@@ -170,7 +170,7 @@ class EntityManager
         }
         $pdo->beginTransaction();
         $stmt = $pdo->prepare(
-            sprintf("UPDATE `%s` SET %s WHERE id=%s", $tableName, rtrim($paramsString, ', '), $entity->getId())
+            sprintf("UPDATE `%s` SET %s WHERE id=%s;", $tableName, rtrim($paramsString, ', '), $entity->getId())
         );
 
         $this->bindParams($propertyValues, $stmt);

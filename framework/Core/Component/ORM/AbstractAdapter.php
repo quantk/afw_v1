@@ -16,6 +16,7 @@ namespace Artifly\Core\Component\ORM;
 abstract class AbstractAdapter
 {
 //region SECTION: Fields
+    const DEFAULT_CHARSET = "UTF8";
     /**
      * @var string
      */
@@ -23,7 +24,7 @@ abstract class AbstractAdapter
     /**
      * @var string
      */
-    protected $dbname;
+    protected $DBName;
     /**
      * @var string
      */
@@ -40,6 +41,10 @@ abstract class AbstractAdapter
      * @var string
      */
     protected $connString;
+    /**
+     * @var string
+     */
+    protected $charset = self::DEFAULT_CHARSET;
 //endregion Fields
 
 //region SECTION: Getters/Setters
@@ -54,9 +59,9 @@ abstract class AbstractAdapter
     /**
      * @return mixed
      */
-    public function getDbname()
+    public function getDBName()
     {
-        return $this->dbname;
+        return $this->DBName;
     }
 
     /**
@@ -81,6 +86,14 @@ abstract class AbstractAdapter
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCharset()
+    {
+        return $this->charset;
     }
 //endregion Getters/Setters
 }
