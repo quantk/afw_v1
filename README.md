@@ -14,7 +14,8 @@ $router
         }
     )->addRoute(
         '/hello/{name}',
-        'DefaultController@indexAction'
+        'DefaultController@indexAction',
+        [Route::POST_METHOD, Route::GET_METHOD, Route::PUT_METHOD, Route::DELETE_METHOD]
     )
 ;
 ```
@@ -47,12 +48,13 @@ $router
 ```
 
 ## TODO:
-1. ~~Router~~
-2. ~~Container with Dependency Injection~~
-3. ~~Template Engine~~
-4. ~~Refactor file structure in core directory~~
-5. ~~Redirect mechanism~~
-6. ~~Base controller shorthand functions~~
-7. ORM progress: 70%
-8. Configuration Manager
-9. Migration mechanism
+1.  ~~Router~~
+2.  ~~Container with Dependency Injection~~
+3.  ~~Template Engine~~
+4.  ~~Refactor file structure in core directory~~
+5.  ~~Redirect mechanism~~
+6.  ~~Base controller shorthand functions~~
+7.  ORM progress: 70%
+8.  Event System
+9.  Configuration Manager
+10. Migration mechanism
