@@ -26,6 +26,7 @@ class ActionHandler
     public const CONTROLLER_PATH = 'App\\Controller\\';
 
     private $handlerType = self::CONTROLLER_TYPE;
+    const SET_DEFAULT_DEPENDENCIES_METHOD = 'setDefaultDependencies';
 
     /**
      * @var \Closure
@@ -87,6 +88,11 @@ class ActionHandler
                 }
                 $controller   = $this->container->get($this->controllerClass);
                 $rAction      = new \ReflectionMethod($controller, $this->action);
+
+                $defaultControllerDependencies = $this->resolveMethodParams(new \ReflectionMethod($controller, self::SET_DEFAULT_DEPENDENCIES_METHOD));
+
+                call_user_func_array([$controller, self::SET_DEFAULT_DEPENDENCIES_METHOD], $defaultControllerDependencies);
+
                 $dependencies = array_merge($this->resolveMethodParams($rAction), $args);
 
                 $content = call_user_func_array([$controller, $this->action], $dependencies);

@@ -24,6 +24,7 @@ $router
 3. ~~Template Engine~~
 4. ~~Refactor file structure in core directory~~
 5. ~~Redirect mechanism~~
-6. ORM progress: 50%
-7. Configuration Manager
-8. Migration mechanism
+6. ~~Base controller shorthand functions~~
+7. ORM progress: 70%
+8. Configuration Manager
+9. Migration mechanism

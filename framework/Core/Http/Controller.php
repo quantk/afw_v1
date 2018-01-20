@@ -7,7 +7,9 @@
 
 namespace Artifly\Core\Http;
 
+use Artifly\Core\Component\Container\Container;
 use Artifly\Core\Component\Template\TemplateEngine;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 /**
@@ -21,19 +23,24 @@ class Controller
     /**
      * @var TemplateEngine
      */
-    private $templateEngine;
+    protected $templateEngine;
+    /**
+     * @var Container
+     */
+    protected $container;
 //endregion Fields
 
 //region SECTION: Constructor
     /**
-     * Controller constructor.
-     *
      * @param TemplateEngine $templateEngine
+     * @param Container      $container
      */
-    public function __construct(TemplateEngine $templateEngine)
+    public function setDefaultDependencies(
+        TemplateEngine $templateEngine, Container $container
+    )
     {
-        //todo: придумать как заинъектить сюда без конструктора
         $this->templateEngine = $templateEngine;
+        $this->container = $container;
     }
 //endregion Constructor
 
@@ -44,6 +51,42 @@ class Controller
     protected function getTemplateEngine()
     {
         return $this->templateEngine;
+    }
+
+    /**
+     * @param $serviceId
+     *
+     * @return mixed
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    protected function get($serviceId)
+    {
+        return $this->container->get($serviceId);
+    }
+
+    /**
+     * @param       $data
+     * @param int   $code
+     * @param array $headers
+     * @param bool  $json
+     *
+     * @return JsonResponse
+     */
+    protected function json($data, $code = 200, $headers = [], $json = true)
+    {
+        return new JsonResponse($data, $code, $headers, $json);
+    }
+
+    /**
+     * @param $templateName
+     * @param $args
+     *
+     * @return string
+     */
+    protected function render($templateName, $args = [])
+    {
+        return $this->templateEngine->render($templateName, $args);
     }
 //endregion Protected
 }

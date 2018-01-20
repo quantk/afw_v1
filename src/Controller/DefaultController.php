@@ -23,26 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 class DefaultController extends Controller
 {
     /**
-     * @var Container
-     */
-    private $container;
-
-    /**
-     * DefaultController constructor.
-     *
-     * @param TemplateEngine $templateEngine
-     * @param Container      $container
-     */
-    public function __construct(
-        TemplateEngine $templateEngine,
-        Container $container
-    )
-    {
-        parent::__construct($templateEngine);
-        $this->container = $container;
-    }
-
-    /**
      * @param Request       $request
      *
      * @param EntityManager $em
@@ -60,7 +40,7 @@ class DefaultController extends Controller
             $userName = $user->getName();
         }
 
-        return $this->getTemplateEngine()->render('index.html', [
+        return $this->render('index.html', [
             'user' => $userName,
             'method' => $request->getMethod()
         ]);

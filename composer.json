@@ -9,7 +9,8 @@
     "require": {
         "symfony/http-foundation": "^4.0",
         "psr/container": "^1.0",
-        "twig/twig": "^2.0"
+        "twig/twig": "^2.0",
+        "doctrine/annotations": "^1.6"
     },
     "autoload": {
         "psr-4": {
