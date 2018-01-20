@@ -9,6 +9,10 @@ namespace Artifly\Core;
 
 
 use Artifly\Core\Component\Container\Container;
+use Artifly\Core\Component\ORM\DBConnector;
+use Artifly\Core\Component\ORM\EntityManager;
+use Artifly\Core\Component\ORM\Exception\ORMException;
+use Artifly\Core\Component\ORM\MysqlAdapter;
 use Artifly\Core\Component\Router\DispatchedRoute;
 use Artifly\Core\Component\Router\Router;
 use Artifly\Core\Component\Template\TemplateEngine;
@@ -59,21 +63,19 @@ class Application
      */
     public function __construct()
     {
-        $this->corePath      = dirname(__FILE__);
-        $this->frameworkPath = $this->corePath.'/../';
-        $this->templatesPath = $this->frameworkPath.'../templates';
+        $this->parsePaths();
+        $this->registerContainer();
+        $this->registerTemplateEngine();
+        $this->parseRequest();
 
-        $this->request   = Request::createFromGlobals();
-        $this->container = new Container();
+        $entityManager = $this->connectoToDatabase();
+
+        /**
+         * Register base services in container
+         */
         $this->container->addInstance($this->request);
-        $loader         = new Twig_Loader_Filesystem($this->templatesPath);
-        $twig           = new Twig_Environment(
-            $loader, [
-//            'cache' => '/path/to/compilation_cache',
-            ]
-        );
-        $this->templateEngine = new TemplateEngine($twig);
         $this->container->addInstance($this->templateEngine);
+        $this->container->addInstance($entityManager);
     }
 //endregion Constructor
 
@@ -128,8 +130,60 @@ class Application
      */
     private function printContent($content)
     {
-        $response = $content instanceof Response ? $content : new Response($content,200);
+        $response = $content instanceof Response ? $content : new Response($content, 200);
         $response->send();
+    }
+
+    /**
+     * @return EntityManager
+     * @throws ORMException
+     */
+    private function connectoToDatabase(): EntityManager
+    {
+        $mysqlAdapter = new MysqlAdapter(
+            'localhost',
+            'afw',
+            'root',
+            '12345'
+        );
+
+        $connector = new DBConnector($mysqlAdapter);
+        $connector->connect();
+        if (!$connector->isConnected()) {
+            throw new ORMException('DB Connection failed');
+        }
+
+        $entityManager = new EntityManager($connector);
+
+        return $entityManager;
+    }
+
+    private function parsePaths(): void
+    {
+        $this->corePath      = dirname(__FILE__);
+        $this->frameworkPath = $this->corePath.'/../';
+        $this->templatesPath = $this->frameworkPath.'../templates';
+    }
+
+    private function registerContainer(): void
+    {
+        $this->container = new Container();
+    }
+
+    private function parseRequest(): void
+    {
+        $this->request = Request::createFromGlobals();
+    }
+
+    private function registerTemplateEngine(): void
+    {
+        $loader               = new Twig_Loader_Filesystem($this->templatesPath);
+        $twig                 = new Twig_Environment(
+            $loader, [
+//            'cache' => '/path/to/compilation_cache',
+            ]
+        );
+        $this->templateEngine = new TemplateEngine($twig);
     }
 //endregion Private
 

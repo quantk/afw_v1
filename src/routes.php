@@ -14,7 +14,7 @@ $router
         }
     )
     ->addRoute(
-        '/',
+        '/{userId}',
         'DefaultController@indexAction',
         [Route::POST_METHOD, Route::GET_METHOD, Route::PUT_METHOD, Route::DELETE_METHOD]
     )
