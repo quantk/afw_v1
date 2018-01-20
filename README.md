@@ -55,6 +55,7 @@ $router
 5.  ~~Redirect mechanism~~
 6.  ~~Base controller shorthand functions~~
 7.  ORM progress: 70%
-8.  Event System
-9.  Configuration Manager
-10. Migration mechanism
+8   Tests
+9.  Event System
+10. Configuration Manager
+11. Migration mechanism
