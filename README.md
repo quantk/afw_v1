@@ -32,6 +32,11 @@ $router
     
     // Find
     $user = $em->find(\App\Model\User::class, 5);
+    // Collection by args and order
+    $user = $em->findBy(\App\Model\User::class, ['name' => 'Name'], ['name' => 'DESC']);
+    // One entity by args and order
+    $user = $em->findOneBy(\App\Model\User::class, ['name' => 'Name'], ['name' => 'DESC']);
+    
     
     // Update
     $user = $em->find(\App\Model\User::class, 5);
@@ -54,8 +59,9 @@ $router
 4.  ~~Refactor file structure in core directory~~
 5.  ~~Redirect mechanism~~
 6.  ~~Base controller shorthand functions~~
-7.  ORM progress: 70%
+7.  ORM progress: 90%
 8.  Tests
 9.  Event System
 10. Configuration Manager
 11. Migration mechanism
+12. Console commands

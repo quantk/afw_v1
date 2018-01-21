@@ -9,11 +9,8 @@ namespace App\Controller;
 
 
 use App\Model\User;
-use Artifly\Core\Component\Container\Container;
 use Artifly\Core\Component\ORM\EntityManager;
-use Artifly\Core\Component\Template\TemplateEngine;
 use Artifly\Core\Http\Controller;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class DefaultController
@@ -23,16 +20,14 @@ use Symfony\Component\HttpFoundation\Request;
 class DefaultController extends Controller
 {
     /**
-     * @param Request       $request
-     *
-     * @param EntityManager $em
-     *
      * @param               $userId
      *
      * @return string
      */
-    public function indexAction(Request $request, EntityManager $em, $userId)
+    public function indexAction($userId)
     {
+        /* @var $em EntityManager */
+        $em = $this->get(EntityManager::class);
         /* @var $user User */
         $userName = 'Анонимус';
         $user = $em->find(User::class, $userId);
@@ -41,8 +36,7 @@ class DefaultController extends Controller
         }
 
         return $this->render('index.html', [
-            'user' => $userName,
-            'method' => $request->getMethod()
+            'user' => $userName
         ]);
     }
 }

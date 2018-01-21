@@ -7,6 +7,9 @@
 
 namespace Artifly\Core\Component\ORM;
 
+use Artifly\Core\Component\ORM\Exception\EntityFieldNotFound;
+use Artifly\Core\Component\ORM\Exception\ORMException;
+
 
 /**
  * Class EntityManager
@@ -56,31 +59,33 @@ class EntityManager
      */
     public function find($entityClass, $id)
     {
-        $tableName = $this->getEntityTableName($entityClass);
+        return $this->selectAction($entityClass, ['id' => $id], [], 1);
+    }
 
-        $pdo  = $this->connection->getPdo();
-        $stmt = $pdo->prepare(
-            sprintf(
-                "SELECT * FROM `%s` WHERE id=:id;",
-                $tableName,
-                $id
-            )
-        );
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-        $result = $stmt->fetch();
-        if ($result === false) {
-            return null;
-        }
+    /**
+     * @param string $entityClass
+     * @param array  $criterias
+     * @param array  $orderBy
+     *
+     * @return mixed
+     * @throws EntityFieldNotFound
+     */
+    public function findBy(string $entityClass, array $criterias = [], array $orderBy = [])
+    {
+        return $this->selectAction($entityClass, $criterias, $orderBy);
+    }
 
-        $rTable = new \ReflectionClass($entityClass);
-        $object = $rTable->newInstance();
-        foreach ($rTable->getProperties() as $property) {
-            $property->setAccessible(true);
-            $property->setValue($object, $result[$property->getName()]);
-        }
-
-        return $object;
+    /**
+     * @param string $entityClass
+     * @param array  $criterias
+     * @param array  $orderBy
+     *
+     * @return mixed
+     * @throws EntityFieldNotFound
+     */
+    public function findOneBy(string $entityClass, array $criterias = [], array $orderBy = [])
+    {
+        return $this->selectAction($entityClass, $criterias, $orderBy, 1);
     }
 
     /**
@@ -105,6 +110,79 @@ class EntityManager
 //endregion Public
 
 //region SECTION: Private
+    /**
+     * @param string $entityClass
+     * @param array  $criterias
+     * @param array  $orderBy
+     *
+     * @param int    $limit
+     *
+     * @return mixed
+     * @throws EntityFieldNotFound
+     */
+    private function selectAction(string $entityClass, array $criterias = [], array $orderBy = [], $limit = 0)
+    {
+        if (!is_int($limit)) {
+            throw new ORMException('Limit argument must be integer');
+        }
+        $tableName = $this->getEntityTableName($entityClass);
+
+        $rTable = new \ReflectionClass($entityClass);
+        $where  = '';
+        $order  = '';
+
+        foreach ($orderBy as $columnName => $orderType) {
+            if (!in_array($orderType, ['ASC', 'DESC'])) {
+                throw new ORMException('Wrong order type ' . $orderType);
+            }
+            if ($order !== '') {
+                $order .= ' AND ';
+            } else {
+                $order = 'ORDER BY ';
+            }
+
+            if (!$rTable->hasProperty($columnName)) {
+                throw new EntityFieldNotFound();
+            }
+
+            $order .= sprintf('%s %s', $columnName, strtoupper($orderType));
+        }
+
+        foreach ($criterias as $criteria => $value) {
+            if ($where !== '') {
+                $where .= ' AND ';
+            } else {
+                $where = 'WHERE ';
+            }
+            if (!$rTable->hasProperty($criteria)) {
+                throw new EntityFieldNotFound();
+            }
+
+            $where .= sprintf('%s=:%s', $criteria, $criteria);
+        }
+
+        $pdo = $this->connection->getPdo();
+
+        $limitStr = $limit && is_numeric($limit) ? 'LIMIT '.$limit : '';
+
+        $stmt = $pdo->prepare(
+            sprintf(
+                "SELECT * FROM `%s` %s %s %s;",
+                $tableName,
+                $where,
+                $order,
+                $limitStr
+            )
+        );
+        $this->bindParams($criterias, $stmt);
+
+        $stmt->execute();
+
+        $result = $this->parseQueryResult($entityClass, $stmt, $limit !== 1);
+
+        return $result;
+    }
+
     /**
      * @param AbstractEntity|string $entity
      *
@@ -196,11 +274,23 @@ class EntityManager
      * @param               $objectClass
      * @param \PDOStatement $stmt
      *
+     * @param bool          $isCollection
+     *
      * @return mixed
      */
-    private function parseQueryResult($objectClass, $stmt)
+    private function parseQueryResult($objectClass, $stmt, $isCollection = true)
     {
-        return $objectClass ? $stmt->fetchAll(\PDO::FETCH_CLASS, $objectClass) : $stmt->fetchAll();
+        if ($isCollection) {
+            $result = $objectClass ? $stmt->fetchAll(\PDO::FETCH_CLASS, $objectClass) : $stmt->fetchAll();
+        } else {
+            if ($objectClass) {
+                $stmt->setFetchMode(\PDO::FETCH_CLASS, $objectClass);
+            }
+
+            $result = $stmt->fetch();
+        }
+
+        return $result;
     }
 //endregion Private
 }
