@@ -60,9 +60,10 @@ $router
 5.  ~~Redirect mechanism~~
 6.  ~~Base controller shorthand functions~~
 7.  ORM progress: 90%
-8.  Logger
+8.  ~~Logger~~
 9.  ~~Create test~~
 10.  Event System
 11. ~~Configuration Manager~~
-12. Migration mechanism
-13. Console commands
+12. Auth system
+13. Migration mechanism
+14. Console commands

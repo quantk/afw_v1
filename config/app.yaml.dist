@@ -1,3 +1,5 @@
 configuration:
-  # dev|prod
+  # dev|prod environment
   mode: dev
+  # name of application
+  appname: Application

@@ -9,6 +9,7 @@ namespace App\Model;
 
 
 use Artifly\Core\Component\ORM\AbstractEntity;
+use Artifly\Core\Component\ORM\Annotation\Field;
 
 /**
  * Class User
@@ -18,10 +19,12 @@ use Artifly\Core\Component\ORM\AbstractEntity;
 class User extends AbstractEntity
 {
     /**
+     * @Field(type="string")
      * @var string
      */
     private $name;
     /**
+     * @Field(type="string")
      * @var string
      */
     private $lastname;

@@ -7,19 +7,25 @@
 
 namespace Artifly\Core\Component\ORM;
 
+use Artifly\Core\Component\ORM\Annotation\Field;
+
 
 /**
  * Class ActiveRecord
- *
  * @package Artifly\Core\Component\ORM
  */
 class AbstractEntity
 {
 //region SECTION: Fields
+    const STRING_TYPE = 'string';
+    const INTEGER_TYPE = 'integer';
+    const FOREIGN_KEY_TYPE = 'foreign_key';
+
     protected $excludedFields = [
         'id',
     ];
     /**
+     * @Field(type="integer")
      * @var int
      */
     protected $id = null;
