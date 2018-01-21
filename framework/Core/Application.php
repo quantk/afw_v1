@@ -8,6 +8,8 @@
 namespace Artifly\Core;
 
 
+use Artifly\Core\Component\Configuration\Configuration;
+use Artifly\Core\Component\Configuration\ConfigurationManager;
 use Artifly\Core\Component\Container\Container;
 use Artifly\Core\Component\ORM\DBConnector;
 use Artifly\Core\Component\ORM\EntityManager;
@@ -55,6 +57,10 @@ class Application
      * @var TemplateEngine
      */
     private $templateEngine = null;
+    /**
+     * @var ConfigurationManager
+     */
+    private $configurationManager = null;
 //endregion Fields
 
 //region SECTION: Constructor
@@ -64,6 +70,11 @@ class Application
     public function __construct()
     {
         $this->parsePaths();
+
+        $configYamlPath = $this->frameworkPath.'/../config/app.yaml';
+        $this->configurationManager = new ConfigurationManager();
+        $this->configurationManager->parse($configYamlPath);
+
         $this->registerContainer();
         $this->registerTemplateEngine();
         $this->parseRequest();
@@ -177,13 +188,18 @@ class Application
 
     private function registerTemplateEngine(): void
     {
+        $twigArgs = [];
+        if ($this->configurationManager->getConfiguration()->getMode() === Configuration::PROD_MODE) {
+            $twigArgs['cache'] = $this->getTemplateEngineCacheDir();
+        }
         $loader               = new Twig_Loader_Filesystem($this->templatesPath);
-        $twig                 = new Twig_Environment(
-            $loader, [
-//            'cache' => '/path/to/compilation_cache',
-            ]
-        );
+        $twig                 = new Twig_Environment($loader, $twigArgs);
         $this->templateEngine = new TemplateEngine($twig);
+    }
+
+    private function getTemplateEngineCacheDir()
+    {
+        return $this->frameworkPath.'/../var/cache/twig';
     }
 //endregion Private
 

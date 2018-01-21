@@ -1,0 +1,3 @@
+configuration:
+  # dev|prod
+  mode: dev
