@@ -88,7 +88,7 @@ class Application
     public function run(Router $router)
     {
         $this->container->addInstance($router);
-        $dispatchedRoute = $router->dispatch($this->request);
+        $dispatchedRoute = $router->dispatch($this->request->getPathInfo(), $this->request->getMethod());
         switch ($dispatchedRoute->getDispatchType()) {
             case DispatchedRoute::ROUTE_FOUNDED:
                 $handlerType = $dispatchedRoute->getHandler() instanceof \Closure ? ActionHandler::CLOSURE_TYPE : ActionHandler::CONTROLLER_TYPE;

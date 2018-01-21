@@ -17,5 +17,16 @@
             "Artifly\\": "framework/",
             "App\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
     }
 }

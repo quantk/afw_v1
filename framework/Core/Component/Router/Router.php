@@ -9,8 +9,6 @@ namespace Artifly\Core\Component\Router;
 
 use Artifly\Core\Component\Router\Exception\RouterConflictError;
 use Artifly\Core\Component\Router\Exception\RouterError;
-use Artifly\Core\Exception\ControllerResponseError;
-use Symfony\Component\HttpFoundation\Request;
 
 
 /**
@@ -59,7 +57,6 @@ class Router
 //endregion Constructor
 
 //region SECTION: Public
-
     /**
      * @param        $routePath
      * @param        $handler
@@ -94,17 +91,16 @@ class Router
     }
 
     /**
-     * @param Request $request
+     * @param $pathInfo
+     * @param $method
      *
      * @return DispatchedRoute
-     * @throws ControllerResponseError
+     * @throws RouterError
      */
-    public function dispatch(Request $request): DispatchedRoute
+    public function dispatch($pathInfo, $method): DispatchedRoute
     {
-        $pathInfo = $request->getPathInfo();
-
         foreach ($this->routes as $route) {
-            if (!in_array($request->getMethod(), $route->getMethods())) {
+            if (!in_array($method, $route->getMethods())) {
                 continue;
             }
 
@@ -140,6 +136,18 @@ class Router
 
         return $this->currentRoute;
     }
+
+    /**
+     * @param string $method
+     *
+     * @return Router
+     */
+    public function addMethod($method = Route::GET_METHOD): Router
+    {
+        $this->headRoute->addMethod($method);
+
+        return $this;
+    }
 //endregion Public
 
 //region SECTION: Private
@@ -169,23 +177,19 @@ class Router
 
 //region SECTION: Getters/Setters
     /**
-     * @return DispatchedRoute
+     * @return Route
      */
-    public function getCurrentRoute(): DispatchedRoute
+    public function getHeadRoute()
     {
-        return $this->currentRoute;
+        return $this->headRoute;
     }
 
     /**
-     * @param string $method
-     *
-     * @return Router
+     * @return DispatchedRoute
      */
-    public function addMethod($method = Route::GET_METHOD): Router
+    public function getCurrentRoute(): ?DispatchedRoute
     {
-        $this->headRoute->addMethod($method);
-
-        return $this;
+        return $this->currentRoute;
     }
 
     /**
