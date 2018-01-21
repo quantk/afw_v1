@@ -19,6 +19,8 @@ use Artifly\Core\Component\Router\DispatchedRoute;
 use Artifly\Core\Component\Router\Router;
 use Artifly\Core\Component\Template\TemplateEngine;
 use Artifly\Core\Http\ActionHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,6 +63,10 @@ class Application
      * @var ConfigurationManager
      */
     private $configurationManager = null;
+    /**
+     * @var Logger
+     */
+    private $logger = null;
 //endregion Fields
 
 //region SECTION: Constructor
@@ -71,9 +77,9 @@ class Application
     {
         $this->parsePaths();
 
-        $configYamlPath = $this->frameworkPath.'/../config/app.yaml';
-        $this->configurationManager = new ConfigurationManager();
-        $this->configurationManager->parse($configYamlPath);
+        $this->prepareConfiguration();
+
+        $this->prepareLogger();
 
         $this->registerContainer();
         $this->registerTemplateEngine();
@@ -87,6 +93,7 @@ class Application
         $this->container->addInstance($this->request);
         $this->container->addInstance($this->templateEngine);
         $this->container->addInstance($entityManager);
+        $this->container->addInstance($this->logger);
     }
 //endregion Constructor
 
@@ -166,6 +173,7 @@ class Application
 
         $entityManager = new EntityManager($connector);
 
+        $this->writeDebugLog('Connection to database is successful');
         return $entityManager;
     }
 
@@ -179,11 +187,13 @@ class Application
     private function registerContainer(): void
     {
         $this->container = new Container();
+        $this->writeDebugLog('Container initialized');
     }
 
     private function parseRequest(): void
     {
         $this->request = Request::createFromGlobals();
+        $this->writeDebugLog('Request is created');
     }
 
     private function registerTemplateEngine(): void
@@ -195,11 +205,67 @@ class Application
         $loader               = new Twig_Loader_Filesystem($this->templatesPath);
         $twig                 = new Twig_Environment($loader, $twigArgs);
         $this->templateEngine = new TemplateEngine($twig);
+        $this->writeDebugLog('Template engine is initialized');
     }
 
     private function getTemplateEngineCacheDir()
     {
         return $this->frameworkPath.'/../var/cache/twig';
+    }
+
+    private function prepareConfiguration(): void
+    {
+        $configYamlPath             = $this->frameworkPath.'/../config/app.yaml';
+        $this->configurationManager = new ConfigurationManager();
+        $this->configurationManager->parse($configYamlPath);
+    }
+
+    /**
+     * @param string $message
+     */
+    private function writeDebugLog(string $message)
+    {
+        if ($this->isDevMode()) {
+            $this->logger->debug($message);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function getLogPath(): string
+    {
+        return sprintf('%s/var/log/%s.log',$this->frameworkPath.'/..', $this->configurationManager->getConfiguration()->getMode());
+    }
+
+    private function prepareLogger()
+    {
+        $this->logger = new Logger($this->configurationManager->getConfiguration()->getAppName());
+        $logLevel     = $this->getMinimalLogLevel();
+        $this->logger->pushHandler(new StreamHandler($this->getLogPath(), $logLevel));
+        $this->writeDebugLog('Logger is ready');
+    }
+
+    /**
+     * @return bool
+     */
+    private function isDevMode(): bool
+    {
+        return $this->configurationManager->getConfiguration()->getMode() === Configuration::DEV_MODE;
+    }
+
+    /**
+     * @return int
+     */
+    private function getMinimalLogLevel(): int
+    {
+        if ($this->isDevMode()) {
+            $logLevel = Logger::DEBUG;
+        } else {
+            $logLevel = Logger::ERROR;
+        }
+
+        return $logLevel;
     }
 //endregion Private
 

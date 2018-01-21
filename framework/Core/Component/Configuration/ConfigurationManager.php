@@ -43,9 +43,11 @@ class ConfigurationManager
         }
         $config = $parsed['configuration'];
         $mode   = $config['mode'] ?? Configuration::PROD_MODE;
+        $appname = $config['appname'] ?? 'Application';
 
         $configuration = new Configuration();
         $configuration->setMode($mode);
+        $configuration->setAppName($appname);
 
         $this->configuration = $configuration;
     }

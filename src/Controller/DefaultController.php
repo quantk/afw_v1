@@ -11,6 +11,7 @@ namespace App\Controller;
 use App\Model\User;
 use Artifly\Core\Component\ORM\EntityManager;
 use Artifly\Core\Http\Controller;
+use Monolog\Logger;
 
 /**
  * Class DefaultController
